@@ -1,10 +1,12 @@
 import "dotenv/config";
 import zod from "zod";
 import express from "express";
-import openai from "openai";
+import { rateLimit } from "express-rate-limit";
+
 import * as cheerio from "cheerio";
 import { v4 as uuidv4 } from "uuid";
-import { rateLimit } from "express-rate-limit";
+import { ChatCompletionMessageParam } from "openai/resources.mjs";
+import openai from "openai";
 
 import fs from "fs";
 import http from "http";
@@ -12,10 +14,11 @@ import path from "path";
 
 import zodVerify from "./helpers/zod-verify";
 
-import { 
-    MAX_RESULT_FILES, 
-    OPEN_AI_CHAT_MODEL 
+import {
+    MAX_RESULT_FILES,
+    OPEN_AI_CHAT_MODEL
 } from "./options";
+
 import "./cleanup-results";
 
 const PORT = Number(process.env.PORT) || 80;
@@ -24,7 +27,6 @@ const server = http.createServer(application);
 
 const systemPrompt = fs.readFileSync("./prompts/system.txt", { encoding: "utf8", flag: "r" });
 const htmlTemplate = fs.readFileSync("./templates/index.html", { encoding: "utf8", flag: "r" });
-const historyTemplate = fs.readFileSync("./templates/history.html", { encoding: "utf8", flag: "r" });
 
 /**
  * The results will all be temporarily saved under
@@ -57,7 +59,7 @@ application.use(
  * /index.html and so on.
  */
 application.use((request, _response, next) => {
-    if (request.method === "GET" && path.extname(request.path).length === 0 && !["/", "/history"].includes(request.path))
+    if (request.method === "GET" && path.extname(request.path).length === 0 && request.path !== "/")
         request.url += ".html";
     next();
 });
@@ -89,21 +91,10 @@ application.post("/hallucinate", async (request, response) => {
     let { context, openAIAPIKey } = parameters;
     const openAIClient = new openai({ apiKey: openAIAPIKey });
 
-    const indexCompletion = await openAIClient.chat.completions.create({
-        model: OPEN_AI_CHAT_MODEL,
-        messages: [
-            { role: "developer", content: systemPrompt },
-            { role: "developer", content: `context: ${context}` },
-            { role: "developer", content: "goal: index" }
-        ],
-    });
-
-    const indexContent = indexCompletion.choices[0].message.content;
-
-    if (!indexContent) {
-        response.json({ redirectTo: `/?error=1` });
-        return;
-    }
+    const messages: ChatCompletionMessageParam[] = [
+        { role: "developer", content: systemPrompt },
+        { role: "user", content: `context: ${context}` },
+    ]
 
     /**
      * Refer to the system prompt about what this is.
@@ -116,50 +107,48 @@ application.post("/hallucinate", async (request, response) => {
         shortcode: string;
     };
 
-    const { title, body, shortcode } = JSON.parse(indexContent) as IndexContent;
+    const goals = ["index", "css", "js"] as const;
+    let contents: Partial<IndexContent & { css: string, js: string }> = {};
 
-    const cssCompletion = await openAIClient.chat.completions.create({
-        model: OPEN_AI_CHAT_MODEL,
-        messages: [
-            { role: "developer", content: systemPrompt },
-            { role: "developer", content: `context: ${context}` },
-            { role: "developer", content: `body: ${body}` },
-            { role: "developer", content: "goal: css" }
-        ],
-    });
+    /**
+     * This might be puzzling to understand since this is less readable compared to the "Initial Commit."
+     * First, it achieves a goal, then builds up the message with the result from the goal. 
+     * Finally, the result of said goal is also stored within the contents object.
+     */
+    for (const goal of goals) {
+        const completion = await openAIClient.chat.completions.create({
+            model: OPEN_AI_CHAT_MODEL,
+            messages: [
+                ...messages,
+                { role: "developer", content: `goal: ${goal}` }
+            ]
+        });
 
-    const cssContent = cssCompletion.choices[0].message.content;
+        const content = completion.choices[0].message.content;
+        if (!content) {
+            response.json({ redirectTo: `/?error=1` });
+            return;
+        }
+        
+        if (goal === "index") {
+            const index = JSON.parse(content) as IndexContent;
+            contents = { ...index };
+            messages.push({ role: "developer", content: `body: ${index.body}`});
+            continue;
+        }
 
-    if (!cssContent) {
-        response.json({ redirectTo: `/?error=1` });
-        return;
-    }
-
-    const scriptCompletion = await openAIClient.chat.completions.create({
-        model: OPEN_AI_CHAT_MODEL,
-        messages: [
-            { role: "developer", content: systemPrompt },
-            { role: "developer", content: `context: ${context}` },
-            { role: "developer", content: `body: ${body}` },
-            { role: "developer", content: `css: ${cssContent}` },
-            { role: "developer", content: "goal: js" }
-        ],
-    });
-
-    const scriptContent = scriptCompletion.choices[0].message.content;
-    if (!scriptContent) {
-        response.json({ redirectTo: `/?error=1` });
-        return;
+        messages.push({ role: "developer", content: `${goal}: ${content}`});
+        contents[goal] = content;
     }
 
     /**
-     * This part bundles everything from the markup, styling,
-     * and scripting which will be temporarily saved in the results
-     * folder.
+     * This part bundles everything from the markup, styling, and scripting which will be 
+     * saved in the results folder.
      */
+    const { title, body, shortcode, css, js } = contents as IndexContent & { css: string, js: string };
     const $ = cheerio.load(htmlTemplate);
-    const style = $(`<style>${cssContent}</style>`);
-    const script = $(`<script>${scriptContent}</script>`);
+    const style = $(`<style>${css}</style>`);
+    const script = $(`<script>${js}</script>`);
     $("head").append(style);
     $("title").html(title);
     $("body").html(body);
@@ -167,25 +156,19 @@ application.post("/hallucinate", async (request, response) => {
 
     const shortcodeUnique = `${shortcode}-${uuidv4()}`;
     await fs.promises.writeFile(`./public/results/${shortcodeUnique}.html`, $.html());
-
     response.json({ redirectTo: `/results/${shortcodeUnique}` });
 });
 
 /**
- * GET /history
- * This is the global history of the server which lists all the 
- * existing generated pages so far. However it limits the results
- * to the newest 70% of page links and the oldest 30% are
- * omitted.
+ * POST /history
+ * This is the global history of the server which lists all the existing generated pages so far.
+ * However it limits the results to the newest 70% of page links and the oldest 30% are omitted.
+ * Pagination should be implemented here.
  */
-application.get("/history", async (_request, response) => {
-    const $ = cheerio.load(historyTemplate);
-    const list = $("<ul></ul>");
-    $("body > #main").append(list);
-
+application.post("/history", async (_request, response) => {
     const filenames = await fs.promises.readdir("./public/results");
 
-    let fileStatistics = await Promise.all(
+    let fileStatus = await Promise.all(
         filenames.map(async filename => {
             const fullpath = path.join("./public/results", filename);
             const statistic = await fs.promises.stat(fullpath);
@@ -193,15 +176,9 @@ application.get("/history", async (_request, response) => {
         })
     );
 
-    fileStatistics.sort((fileStatistic1, fileStatistic2) => fileStatistic2.time - fileStatistic1.time);
-    fileStatistics = fileStatistics.slice(0, MAX_RESULT_FILES * 0.7); 
-
-    for (const { filename } of fileStatistics) {
-        list.append($(`<li><a href="/results/${filename}">${filename}</a></li>`))
-    }
-
-    response.set('Content-Type', 'text/html');
-    response.send($.html());
+    fileStatus.sort((fileStatus1, fileStatus2) => fileStatus2.time - fileStatus1.time);
+    fileStatus = fileStatus.slice(0, MAX_RESULT_FILES * 0.7);
+    response.json({ history: fileStatus.map(file => file.filename) })
 });
 
 server.listen(PORT, () => console.log(`Listening on port: ${PORT}`));

@@ -23,7 +23,7 @@ async function cleanupResults() {
              * We want to be able to sort the files by their last
              * modified time later on and also retrieve their fullpath easily.
              */
-            const fileStatistics = await Promise.all(
+            const fileStatus = await Promise.all(
                 filenames.map(async filename => {
                     const fullpath = path.join("./public/results", filename);
                     const statistic = await fs.promises.stat(fullpath);
@@ -34,15 +34,15 @@ async function cleanupResults() {
             /**
              * This sorts the files from oldest to newest.
              */
-            fileStatistics.sort((fileStatistic1, fileStatistic2) => fileStatistic1.time - fileStatistic2.time);
+            fileStatus.sort((fileStatus1, fileStatus2) => fileStatus1.time - fileStatus2.time);
             
             /**
              * The oldest files as you can see are kept in the reference array 
              * and then deleted.
              */
-            const filesToDelete = fileStatistics.slice(0, fileStatistics.length - MAX_RESULT_FILES);
-            for (const fileStatistic of filesToDelete) {
-                await fs.promises.unlink(fileStatistic.fullpath);
+            const filesToDelete = fileStatus.slice(0, fileStatus.length - MAX_RESULT_FILES);
+            for (const fileStatus of filesToDelete) {
+                await fs.promises.unlink(fileStatus.fullpath);
             }
         }
     } catch (error) {

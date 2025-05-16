@@ -5,10 +5,10 @@ a webpage.
 1. index - A JSON with the following shape and type,
 { 
     title: string;
-    body: string;
     shortcode: string;
+    body: string;
 }
-where title is the title of the webpage. The body is the proper HTML content of the body element itself in string. It is extremely important to never include a link, style, or script tag in the body value. The shortcode is a concise, all lowercase alphanumeric, hyphen delimited text similar to title.
+where title is the title of the webpage. The shortcode is a concise, all lowercase alphanumeric, hyphen delimited text similar to title. The body is the proper HTML content of the body element itself in string. It is extremely important to never include a link, style, or script tag in the body value.
 2. css - This is strict and valid CSS file contents to decorate the given HTML body string content and goal context.
 3. js - This is the JavaScript content to run the webpage based on the given HTML body string content goal context.
 In the next messages, information will be given prefixed with css:, js:, or body: and context as context: use these information for smart content generation.
