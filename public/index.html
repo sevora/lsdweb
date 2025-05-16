@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>lsdweb</title>
+    <link rel="stylesheet" href="/style.css" />
+</head>
+
+<body>
+    <div id="main">
+        <div id="title">lsdweb</div>
+        <div id="error" class="none">The request could not be accomplished. Please ensure that your query is valid.
+        </div>
+        <div id="suggestions"></div>
+        <div id="inputs">
+            <input type="text" autocomplete="off" id="context" maxlength="32" placeholder="Search lsdweb by typing an idea..." />
+            <button id="global-history">Global History</button>
+            <button id="option-toggle">Options</button>
+            <button id="search" class="disabled">Search</button>
+        </div>
+        <div id="options" class="hidden">
+            <div id="disclaimer">Important!</div>
+            <div>
+                It is a bad idea to put your OpenAI API Key on some random website on the internet.
+                But <a href="https://github.com/sevora" target="_blank">I would not</a> steal your keys. I just don't
+                want to go
+                bankrupt when people use this site that I'm already hosting for free.
+            </div>
+            <div>
+                Remember, you are using your OpenAI API Key here, violating
+                <a href="https://openai.com/policies/usage-policies/" target="_blank">OpenAI's Usage Policies</a> will
+                be attributed to your account
+                such as searching for explicit content.
+            </div>
+
+            <div>
+                The model this app uses is o3-mini so that no one's wallets will hurt unless they somehow spam the
+                search feature a million or so times in one go.
+            </div>
+            <div>
+                If you're still hesitant, you can also host the website on your own by downloading the <a
+                    href="https://github.com/sevora/lsdweb" target="_blank">source code on Github.</a>
+            </div>
+            <input type="password" autocomplete="off" id="openai" placeholder="OpenAI API Key required">
+        </div>
+    </div>
+    <div id="loader" class="none">
+        <div>Hallucinating... The time it takes varies by the goal...</div>
+    </div>
+    <script type="text/javascript" src="/script.js"></script>
+</body>
+
+</html>

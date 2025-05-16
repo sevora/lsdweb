@@ -1,0 +1,27 @@
+{
+    "name": "lsdweb",
+    "version": "1.0.0",
+    "private": true,
+    "main": "build/index.js",
+    "scripts": {
+        "build": "npx tsc",
+        "start": "node build/index.js",
+        "dev": "npx tsx src/index.ts"
+    },
+    "author": "Ralph Louis Gopez",
+    "license": "MIT",
+    "description": "This is a template for an Express Server",
+    "dependencies": {
+        "cheerio": "^1.0.0",
+        "dotenv": "^16.5.0",
+        "express": "^5.1.0",
+        "express-rate-limit": "^7.5.0",
+        "openai": "^4.98.0",
+        "uuid": "^11.1.0",
+        "zod": "^3.24.4"
+    },
+    "devDependencies": {
+        "@types/express": "^5.0.1",
+        "typescript": "^5.8.3"
+    }
+}
