@@ -1,10 +1,6 @@
+import "dotenv/config";
 import fs from "fs";
 import path from "path";
-
-import { 
-    CLEANUP_CHECK_INTERVAL, 
-    MAX_RESULT_FILES 
-} from "./options";
 
 let watcherCleanupTimeout: NodeJS.Timeout;
 
@@ -17,7 +13,7 @@ async function cleanupResults() {
     try {
         const filenames = await fs.promises.readdir("./public/results");
 
-        if (filenames.length > MAX_RESULT_FILES) {
+        if (filenames.length > process.env.RESULTS_MAX_FILES) {
 
             /**
              * We want to be able to sort the files by their last
@@ -40,7 +36,7 @@ async function cleanupResults() {
              * The oldest files as you can see are kept in the reference array 
              * and then deleted.
              */
-            const filesToDelete = fileStatus.slice(0, fileStatus.length - MAX_RESULT_FILES);
+            const filesToDelete = fileStatus.slice(0, fileStatus.length - process.env.RESULTS_MAX_FILES);
             for (const fileStatus of filesToDelete) {
                 await fs.promises.unlink(fileStatus.fullpath);
             }
@@ -64,4 +60,4 @@ fs.watch("./public/results", (_eventType, filename) => {
     }
 });
 
-setInterval(cleanupResults, CLEANUP_CHECK_INTERVAL);
+setInterval(cleanupResults, process.env.RESULTS_CLEANUP_INTERVAL);

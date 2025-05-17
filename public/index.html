@@ -1,55 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="Ralph Louis Gopez">
 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>lsdweb</title>
-    <link rel="stylesheet" href="/style.css" />
-</head>
+        <!-- Default -->
+        <meta name="description" content="Real-time webpage generator powered by OpenAI. No sign up and no login required.">
+        <meta name="keywords" content="ai,website,spa,application,search,engine,generate,free,nologin,nosignup,fun,internet">
 
-<body>
-    <div id="main">
-        <div id="title">lsdweb</div>
-        <div id="error" class="none">The request could not be accomplished. Please ensure that your query is valid.
+        <!-- Facebook -->
+        <meta property="og:title" content="lsdweb (by @ralphlouisgopez)">
+        <meta property="og:type" content="website">
+        <meta property="og:description" content="Real-time webpage generator powered by OpenAI. No sign up and no login required.">
+        <meta property="og:image" content="https://lsdweb.net/banners/banner.jpg">
+        <meta property="og:image:alt" content="lsdweb">
+
+        <!-- Twitter -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:site" content="@ralphlouisgopez">
+        <meta name="twitter:creator" content="@ralphlouisgopez">
+        <meta name="twitter:image" content="https://lsdweb.net/banners/banner.jpg">
+        
+        <title>lsdweb</title>
+
+        <link rel="stylesheet" href="/css/roboto.css" />
+        <link rel="stylesheet" href="/css/scrollbar.css" />
+        <link rel="stylesheet" href="/css/loader.css" />
+        <link rel="stylesheet" href="/css/index.css" />
+        
+    </head>
+    <body>
+        <!-- Main -->
+        <div id="main">
+            <div id="title">lsdweb</div>
+            <div id="error" class="none">The request could not be accomplished. Please ensure that your query is valid.</div>
+            <div id="suggestions"></div>
+            <div id="inputs">
+                <div id="context-container">
+                    <input type="text" autocomplete="off" id="context" maxlength="32" placeholder="Search lsdweb by typing an idea..." />
+                    <div id="context-counter">0/32</div>
+                </div>
+                <a class="button" href="/history">
+                    <object data="/icons/history.svg" type="image/svg+xml"></object>
+                </a>
+                <button id="options-open">
+                    <object data="/icons/settings.svg" type="image/svg+xml"></object>
+                </button>
+                <button id="search" class="disabled">
+                    <object data="/icons/search.svg" type="image/svg+xml"></object>
+                </button>
+            </div>
         </div>
-        <div id="suggestions"></div>
-        <div id="inputs">
-            <input type="text" autocomplete="off" id="context" maxlength="32" placeholder="Search lsdweb by typing an idea..." />
-            <button id="global-history">Global History</button>
-            <button id="option-toggle">Options</button>
-            <button id="search" class="disabled">Search</button>
-        </div>
-        <div id="options" class="hidden">
-            <div id="disclaimer">Important!</div>
-            <div>
-                It is a bad idea to put your OpenAI API Key on some random website on the internet.
-                But <a href="https://github.com/sevora" target="_blank">I would not</a> steal your keys. I just don't
-                want to go
-                bankrupt when people use this site that I'm already hosting for free.
-            </div>
-            <div>
-                Remember, you are using your OpenAI API Key here, violating
-                <a href="https://openai.com/policies/usage-policies/" target="_blank">OpenAI's Usage Policies</a> will
-                be attributed to your account
-                such as searching for explicit content.
-            </div>
 
+        <!-- Options and Warnings -->
+        <div id="options" class="none">
             <div>
-                The model this app uses is o3-mini so that no one's wallets will hurt unless they somehow spam the
-                search feature a million or so times in one go.
-            </div>
-            <div>
-                If you're still hesitant, you can also host the website on your own by downloading the <a
-                    href="https://github.com/sevora/lsdweb" target="_blank">source code on Github.</a>
-            </div>
-            <input type="password" autocomplete="off" id="openai" placeholder="OpenAI API Key required">
-        </div>
-    </div>
-    <div id="loader" class="none">
-        <div>Hallucinating... The time it takes varies by the goal...</div>
-    </div>
-    <script type="text/javascript" src="/index.js"></script>
-</body>
+                <div id="options-header">
+                    <div id="options-title">Options</div>
+                    <button id="options-close">
+                        <object data="/icons/close.svg" type="image/svg+xml"></object>
+                    </button>
+                </div>
+                <div>
+                    It is a bad idea to put your OpenAI API key on some random website on the internet. It is advisable to
+                    regenerate your keys after usage.
+                </div>
+                <div>
+                    Searching for explicit or harmful content will be attributed to the account owning the OpenAI key below
+                    as violations found in <a href="https://openai.com/policies/usage-policies/" target="_blank">OpenAI's Usage Policies.</a>
+                </div>
 
+                <div>
+                    The application will only use the o3-mini model. The input token will vary by the complexity of the task you enter. 
+                    Check out <a href="https://platform.openai.com/docs/models/compare" target="_blank">model comparison</a> to estimate cost for reference.
+                </div>
+                <div>
+                    If you're still unsure, you can also host the website on your own by downloading the 
+                    <a href="https://github.com/sevora/lsdweb" target="_blank">source code on Github.</a>
+                </div>
+                <input type="password" autocomplete="off" id="openai" placeholder="OpenAI API key required...">
+            </div>
+        </div>
+        
+        <!-- Loader  -->
+        <div id="loader" class="none">
+            <div id="loader-container">
+                <div class="loader"></div>
+                <div>Time it takes varies on the complexity of the task.</div>
+            </div>
+        </div>
+        <script type="text/javascript" src="/js/index.js"></script>
+    </body>
 </html>

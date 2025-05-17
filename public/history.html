@@ -1,21 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="Ralph Louis Gopez">
 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Global History</title>
-    <link rel="stylesheet" href="/style.css" />
-</head>
+        <!-- Default -->
+        <meta name="description" content="Real-time webpage generator powered by OpenAI. No sign up and no login required.">
+        <meta name="keywords" content="ai,website,spa,application,search,engine,generate,free,nologin,nosignup,fun,internet">
 
-<body>
-    <div id="main">
-        <div id="title">Global History</div>
-        <a href="/">Go back</a>
-        <div>This contains the most recent page generations from everybody who used this application!</div>
-        <ul id="history"></ul>
-    </div>
-    <script src="/history.js"></script>
-</body>
+        <!-- Facebook -->
+        <meta property="og:title" content="lsdweb (by @ralphlouisgopez)">
+        <meta property="og:type" content="website">
+        <meta property="og:description" content="Real-time webpage generator powered by OpenAI. No sign up and no login required.">
+        <meta property="og:image" content="https://lsdweb.net/banners/banner.jpg">
+        <meta property="og:image:alt" content="lsdweb">
 
+        <!-- Twitter -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:site" content="@ralphlouisgopez">
+        <meta name="twitter:creator" content="@ralphlouisgopez">
+        <meta name="twitter:image" content="https://lsdweb.net/banners/banner.jpg">
+        
+        <title>lsdweb history</title>
+
+        <link rel="stylesheet" href="/css/roboto.css" />
+        <link rel="stylesheet" href="/css/scrollbar.css" />
+        <link rel="stylesheet" href="/css/history.css" />
+    </head>
+    <body>
+        <!-- Main -->
+        <div id="main">
+            <div id="main-header">
+                <div id="title">Global History</div>
+                    <a href="/" class="button"><object data="/icons/close.svg" type="image/svg+xml"></object></a>
+                </div>
+            <div>This contains the most recent page generations from everybody who used the application. You may check out the existing pages generated.</div>
+            <div id="history"></div>
+        </div>
+        <script src="/js/history.js"></script>
+    </body>
 </html>

@@ -3,6 +3,7 @@
 This is an OpenAI page generator. Originally from [Express + Typescript Server Template](https://github.com/sevora/express-server-template.git).
 
 ## Commands
+These commands are expected to be ran on the root directory of the project.
 - `npm run dev` is the command to run the TypeScript source code directly in Node environment.
 - `npm run build` is the command to transpile the server code into JavaScript in the build folder.
 - `npm start` is the command to run the transpiled code in the build folder through Node.
@@ -12,6 +13,14 @@ In a production environment, one would normally use a method other than `npm sta
 ## Configuration
 - `types/index.d.ts` is the file where you can extend the Express Request object.
 - `environment.d.ts` is the file where you can define the environment variables type definitions.
+
+It is imporant to define the environment variables. Failure to do so may result in unexpected errors and crashes. Here is an example of `.env` file that you may place within the root directory of this project:
+```env
+RESULTS_MAX_FILES=1000
+RESULTS_HISTORY_PAGE_SIZE=10
+RESULTS_CLEANUP_INTERVAL=60000
+PORT=8000
+```
 
 ## AWS EC2 Deployment Guide
 This is mainly intended for a quick and easy setup when deploying using AWS EC2 instances with an AMI 2023. 

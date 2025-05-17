@@ -13,12 +13,7 @@ import http from "http";
 import path from "path";
 
 import zodVerify from "./helpers/zod-verify";
-
-import {
-    MAX_RESULT_FILES,
-    OPEN_AI_CHAT_MODEL
-} from "./options";
-
+import searchSuggestions from "./search-suggestions";
 import "./cleanup-results";
 
 const PORT = Number(process.env.PORT) || 80;
@@ -46,7 +41,7 @@ if (!fs.existsSync("./public/results")) {
 application.use(
     rateLimit({
         windowMs: 5 * 60 * 1000,
-        limit: 250,
+        limit: 500,
         standardHeaders: 'draft-8',
         legacyHeaders: false
     })
@@ -64,7 +59,7 @@ application.use((request, _response, next) => {
     next();
 });
 
-application.use(express.static("public"));
+application.use(express.static("public", { maxAge: 60 * 60 * 1000}));
 application.use(express.json());
 
 application.get("/health", (_request, response) => {
@@ -117,7 +112,7 @@ application.post("/hallucinate", async (request, response) => {
      */
     for (const goal of goals) {
         const completion = await openAIClient.chat.completions.create({
-            model: OPEN_AI_CHAT_MODEL,
+            model: "o3-mini",
             messages: [
                 ...messages,
                 { role: "developer", content: `goal: ${goal}` }
@@ -154,8 +149,8 @@ application.post("/hallucinate", async (request, response) => {
     $("body").html(body);
     $("body").append(script);
 
-    const shortcodeUnique = `${shortcode}-${uuidv4()}`;
-    await fs.promises.writeFile(`./public/results/${shortcodeUnique}.html`, $.html());
+    const shortcodeUnique = `${shortcode.slice(0, 32)}-${uuidv4().slice(0, 8)}`;
+    await fs.promises.writeFile(`./public/results/${shortcodeUnique}.html`, $.html(), { encoding: 'utf8', flag: 'w' });
     response.json({ redirectTo: `/results/${shortcodeUnique}` });
 });
 
@@ -165,21 +160,49 @@ application.post("/hallucinate", async (request, response) => {
  * However it limits the results to the newest 70% of page links and the oldest 30% are omitted.
  * Pagination should be implemented here.
  */
-application.post("/history", async (_request, response) => {
+application.post("/history", async (request, response) => {
+    const parameters = zodVerify(zod.object({
+        page: zod.number().min(0)
+    }), request);
+
+    if (!parameters) {
+        response.sendStatus(400);
+        return;
+    }
+
+    const { page } = parameters;
     const filenames = await fs.promises.readdir("./public/results");
 
     let fileStatus = await Promise.all(
         filenames.map(async filename => {
             const fullpath = path.join("./public/results", filename);
-            const statistic = await fs.promises.stat(fullpath);
-            return { filename: filename.slice(0, -5), time: statistic.mtimeMs };
+            const status = await fs.promises.stat(fullpath);
+            return { filename: filename.slice(0, -5), time: status.mtimeMs };
         })
     );
+    
+    const startIndex = page * process.env.RESULTS_HISTORY_PAGE_SIZE;
+    const endIndex = startIndex + process.env.RESULTS_HISTORY_PAGE_SIZE;
 
     fileStatus.sort((fileStatus1, fileStatus2) => fileStatus2.time - fileStatus1.time);
-    fileStatus = fileStatus.slice(0, MAX_RESULT_FILES * 0.7);
-    response.json({ history: fileStatus.map(file => file.filename) })
+    fileStatus = fileStatus.slice(0, process.env.RESULTS_MAX_FILES * 0.7).slice(startIndex, endIndex);
+    response.json({ history: fileStatus })
 });
+
+/**
+ * 
+ */
+application.post("/suggestions", (_request, response) => {
+    const suggestions: string[] = [];
+    const shallowCopy = [...searchSuggestions];
+    
+    for (let index = 0; index < 10; ++index) {
+        const randomIndex = Math.floor(Math.random() * shallowCopy.length);
+        suggestions.push(shallowCopy.splice(randomIndex, 1)[0]);
+    }
+
+    response.json({ suggestions });
+})
 
 server.listen(PORT, () => console.log(`Listening on port: ${PORT}`));
 

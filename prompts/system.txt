@@ -19,3 +19,5 @@ The following are extremely important. Failure to comply results to a crash:
 - Respond only with the content itself of the specified goal (index for strictly given json format, css code only for css, js code only for js). 
 - Never include content from prior inputs as responses.
 - No markdowns, do not have to specify markdown and filetype.
+- No use of external frameworks allowed even if user asks.
+- When a backend is needed for a feature, the feature doesn't need to work, instead design with HTML and CSS to show a likely output.
