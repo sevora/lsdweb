@@ -140,7 +140,7 @@ application.post("/hallucinate", async (request, response) => {
     $("body").html(body);
     $("body").append(script);
 
-    const shortcodeUnique = `${shortcode.slice(0, 32)}-${uuidv4().slice(0, 8)}`;
+    const shortcodeUnique = `${shortcode.toLowerCase().slice(0, 32)}-${uuidv4().slice(0, 8)}`;
     await fs.promises.writeFile(`./public/results/${shortcodeUnique}.html`, $.html(), { encoding: 'utf8', flag: 'w' });
     response.json({ redirectTo: `/results/${shortcodeUnique}` });
 });
