@@ -5,6 +5,15 @@ import path from "path";
 let watcherCleanupTimeout: NodeJS.Timeout;
 
 /**
+ * The results will all be temporarily saved under
+ * the public results folder, therefore this 
+ * folder must be generated automatically.
+ */
+if (!fs.existsSync("./public/results")) {
+    fs.mkdirSync("./public/results");
+}
+
+/**
  * The purpose of this function is to keep a fixed amount of files in the results
  * folder by deleting older files. It runs within a set interval, and also is called
  * whenever the result folder changes.

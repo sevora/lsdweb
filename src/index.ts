@@ -24,15 +24,6 @@ const systemPrompt = fs.readFileSync("./prompts/system.txt", { encoding: "utf8",
 const htmlTemplate = fs.readFileSync("./templates/index.html", { encoding: "utf8", flag: "r" });
 
 /**
- * The results will all be temporarily saved under
- * the public results folder, therefore this 
- * folder must be generated automatically.
- */
-if (!fs.existsSync("./public/results")) {
-    fs.mkdirSync("./public/results");
-}
-
-/**
  * IP-based rate limiter to deter attacks. However, it is important 
  * to note that clients may have the same public IP address. 
  * Take into consideration the potential number of users at a given 
