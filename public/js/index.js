@@ -48,7 +48,7 @@ function main() {
             button.addEventListener("click", function() {
                 contextDOM.value = suggestion;
                 searchDOM.classList.remove("disabled");
-                contextCounterDOM.innerHTML = `${suggestion.length}/32`;
+                contextCounterDOM.innerHTML = `${suggestion.length}/64`;
             });
             suggestionsDOM.append(button);
         }
@@ -62,7 +62,7 @@ function main() {
         const length = event.currentTarget.value.trim().length;
         const method = length > 0 ? "remove" : "add";
         searchDOM.classList[method]("disabled");
-        contextCounterDOM.innerHTML = `${length}/32`;
+        contextCounterDOM.innerHTML = `${length}/64`;
     });
 
     /**

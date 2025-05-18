@@ -65,7 +65,7 @@ application.get("/health", (_request, response) => {
  */
 application.post("/hallucinate", async (request, response) => {
     const parameters = zodVerify(zod.object({
-        context: zod.string().trim().min(1).max(32),
+        context: zod.string().trim().min(1).max(64),
         openAIAPIKey: zod.string().startsWith("sk-")
     }), request);
 
