@@ -1,4 +1,7 @@
 # lsdweb
+![lsdweb Banner Image](./public/banners/banner.jpg)
+The open-for-all OpenAI page generator. The name is inspired by a certain component that may cause hallucinations fitting on how LLMs do work.
+
 ## Overview
 This is an OpenAI page generator. Originally from [Express + Typescript Server Template](https://github.com/sevora/express-server-template.git).
 
