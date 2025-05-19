@@ -103,6 +103,10 @@ div {
   border-radius: 25px;
 }
 
+.hidden {
+  visibility: hidden;
+}
+
 @media (min-width: 768px) {
   #main {
     width: 70%;

@@ -65,6 +65,7 @@ function main() {
     }
 
     retrieveUntilScrollable();
+    document.querySelector("body").classList.remove("hidden");
 }
 
 main();

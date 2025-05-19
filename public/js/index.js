@@ -136,6 +136,8 @@ function main() {
         if (!optionsDOM.classList.contains("none"))
             optionsDOM.classList.add("none");
     });
+
+    document.querySelector("body").classList.remove("hidden");
 }
 
 main();
