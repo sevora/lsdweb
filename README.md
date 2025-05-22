@@ -25,6 +25,9 @@ RESULTS_CLEANUP_INTERVAL=60000
 PORT=8000
 ```
 
+## Todo
+I realized this is a good opportunity to rewrite it into [NextJS](https://nextjs.org/). This application literally fits the structure.
+
 ## AWS EC2 Deployment Guide
 This is mainly intended for a quick and easy setup when deploying using AWS EC2 instances with an AMI 2023. 
 
